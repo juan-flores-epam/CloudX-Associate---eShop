@@ -88,6 +88,16 @@ resource appService 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
+resource devSlot 'Microsoft.Web/sites/slots@2022-03-01' = {
+  name: 'dev'
+  location: location
+  parent: appService
+  kind: 'app'
+  properties: {
+    serverFarmId: appServicePlanId
+  }
+}
+
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = if (!(empty(keyVaultName))) {
   name: keyVaultName
 }

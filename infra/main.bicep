@@ -72,6 +72,16 @@ module web './core/host/appservice.bicep' = {
   }
 }
 
+// resource devSlot 'Microsoft.Web/sites/slots@2022-03-01' = {
+//   name: 'dev'
+//   location: location
+//   parent: web
+//   kind: 'app'
+//   properties: {
+//     serverFarmId: appServicePlan.outputs.id
+//   }
+// }
+
 // The application frontend
 module web2 './core/host/appservice.bicep' = {
   name: 'web2'
@@ -163,7 +173,7 @@ module appServicePlan './core/host/appserviceplan.bicep' = {
     location: location
     tags: tags
     sku: {
-      name: 'B1'
+      name: 'P0v3'
     }
   }
 }
@@ -176,7 +186,7 @@ module appServicePlan2 './core/host/appserviceplan.bicep' = {
     location: locationSecondary
     tags: tags
     sku: {
-      name: 'B1'
+      name: 'P0v3'
     }
   }
 }
