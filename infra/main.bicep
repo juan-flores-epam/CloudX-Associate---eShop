@@ -191,6 +191,35 @@ module appServicePlan2 './core/host/appserviceplan.bicep' = {
   }
 }
 
+module trafficManager './core/network/trafficManager.bicep' = {
+  name: 'trafficManagerJCFS'
+  scope: rg
+  params: {
+    endpoints: [
+      {
+        name: 'endpointCentralUs'
+        type: 'Microsoft.Network/trafficManagerProfiles/azureEndpoints'
+        properties: {
+          endpointStatus: 'Enabled'
+          targetResourceId: web.outputs.id
+        }
+      }
+      {
+        name: 'endpointEastlUs'
+        type: 'Microsoft.Network/trafficManagerProfiles/azureEndpoints'
+        properties: {
+          endpointStatus: 'Enabled'
+          targetResourceId: web2.outputs.id
+        }
+      }
+    ]
+  }
+}
+
+
+
+
+
 // Data outputs
 output AZURE_SQL_CATALOG_CONNECTION_STRING_KEY string = catalogDb.outputs.connectionStringKey
 output AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY string = identityDb.outputs.connectionStringKey
