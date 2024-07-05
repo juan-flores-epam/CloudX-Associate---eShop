@@ -9,7 +9,7 @@
       "value": "${AZURE_LOCATION}"
     },
     "locationSecondary": {
-      "value": "${AZURE_LOCATION_SECONDARY}"
+      "value": "eastus"
     },
     "principalId": {
       "value": "${AZURE_PRINCIPAL_ID}"
