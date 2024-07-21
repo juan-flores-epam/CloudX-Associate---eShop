@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Azure.Identity;
 using BlazorShared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.eShopWeb;
 using Microsoft.eShopWeb.ApplicationCore.Constants;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
@@ -18,24 +20,54 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using MinimalApi.Endpoint.Configurations.Extensions;
 using MinimalApi.Endpoint.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddApplicationInsightsTelemetry();
+
 builder.Services.AddEndpoints();
 
-// Use to force loading of appsettings.json of test project
-builder.Configuration.AddConfigurationFile("appsettings.test.json");
-builder.Logging.AddConsole();
+if (builder.Environment.IsDevelopment())
+{
+    // Use to force loading of appsettings.json of test project
+    builder.Configuration.AddConfigurationFile("appsettings.test.json");
+    builder.Logging.AddConsole();
+}
 
-Microsoft.eShopWeb.Infrastructure.Dependencies.ConfigureServices(builder.Configuration, builder.Services);
+//Microsoft.eShopWeb.Infrastructure.Dependencies.ConfigureServices(builder.Configuration, builder.Services);
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-        .AddEntityFrameworkStores<AppIdentityDbContext>()
-        .AddDefaultTokenProviders();
+//builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+//        .AddEntityFrameworkStores<AppIdentityDbContext>()
+//        .AddDefaultTokenProviders();
+
+if (builder.Environment.IsDevelopment() || builder.Environment.EnvironmentName == "Docker")
+{
+    // Configure SQL Server (local)
+    Microsoft.eShopWeb.Infrastructure.Dependencies.ConfigureServices(builder.Configuration, builder.Services);
+}
+else
+{
+    // Configure SQL Server (prod)
+    var credential = new ChainedTokenCredential(new AzureDeveloperCliCredential(), new DefaultAzureCredential());
+    builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"] ?? ""), credential);
+    builder.Services.AddDbContext<CatalogContext>(c =>
+    {
+        var connectionString = builder.Configuration[builder.Configuration["AZURE_SQL_CATALOG_CONNECTION_STRING_KEY"] ?? ""];
+        c.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure());
+    });
+    builder.Services.AddDbContext<AppIdentityDbContext>(options =>
+    {
+        var connectionString = builder.Configuration[builder.Configuration["AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY"] ?? ""];
+        options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure());
+    });
+}
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 builder.Services.AddScoped(typeof(IReadRepository<>), typeof(EfRepository<>));
@@ -69,17 +101,20 @@ builder.Services.AddAuthentication(config =>
     };
 });
 
-const string CORS_POLICY = "CorsPolicy";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: CORS_POLICY,
-        corsPolicyBuilder =>
-        {
-            corsPolicyBuilder.WithOrigins(baseUrlConfig!.WebBase.Replace("host.docker.internal", "localhost").TrimEnd('/'));
-            corsPolicyBuilder.AllowAnyMethod();
-            corsPolicyBuilder.AllowAnyHeader();
-        });
-});
+// const string CORS_POLICY = "CorsPolicy";
+// builder.Services.AddCors(options =>
+// {
+//     options.AddDefaultPolicy(
+//         corsPolicyBuilder =>
+//         {
+//             corsPolicyBuilder.WithOrigins(
+//                 "https://app-web-yvfuxqsuiyqse.azurewebsites.net",
+//                 "https://app-web-cajz4gvl2hfwu.azurewebsites.net"
+//             );
+//             corsPolicyBuilder.WithHeaders(HeaderNames.ContentType, "application/json");
+//             corsPolicyBuilder.WithMethods("GET", "PUT", "POST", "DELETE", "OPTIONS");
+//         });
+// });
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
@@ -128,6 +163,19 @@ app.Logger.LogInformation("PublicApi App created...");
 
 app.Logger.LogInformation("Seeding Database...");
 
+// IServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+// ILogger<Program> _logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+
+var exception = new Exception("Cannot move further");
+try
+{
+    throw exception;
+}
+catch(Exception ex)
+{
+    app.Logger.LogError(ex, "Program Exception");
+}
+
 using (var scope = app.Services.CreateScope())
 {
     var scopedProvider = scope.ServiceProvider;
@@ -158,7 +206,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.UseCors(CORS_POLICY);
+// app.UseCors();
 
 app.UseAuthorization();
 

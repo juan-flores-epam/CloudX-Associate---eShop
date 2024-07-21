@@ -67,20 +67,11 @@ module web './core/host/appservice.bicep' = {
     appSettings: {
       AZURE_SQL_CATALOG_CONNECTION_STRING_KEY: 'AZURE-SQL-CATALOG-CONNECTION-STRING'
       AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY: 'AZURE-SQL-IDENTITY-CONNECTION-STRING'
+
       AZURE_KEY_VAULT_ENDPOINT: keyVault.outputs.endpoint
     }
   }
 }
-
-// resource devSlot 'Microsoft.Web/sites/slots@2022-03-01' = {
-//   name: 'dev'
-//   location: location
-//   parent: web
-//   kind: 'app'
-//   properties: {
-//     serverFarmId: appServicePlan.outputs.id
-//   }
-// }
 
 // The application frontend
 module web2 './core/host/appservice.bicep' = {
@@ -98,7 +89,29 @@ module web2 './core/host/appservice.bicep' = {
       AZURE_SQL_CATALOG_CONNECTION_STRING_KEY: 'AZURE-SQL-CATALOG-CONNECTION-STRING'
       AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY: 'AZURE-SQL-IDENTITY-CONNECTION-STRING'
       AZURE_KEY_VAULT_ENDPOINT: keyVault.outputs.endpoint
+      APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.outputs.ConnectionString
     }
+  }
+}
+
+module api './core/host/appservice.bicep' = {
+  name: 'api'
+  scope: rg
+  params: {
+    name: '${abbrs.webSitesAppService}api-${resourceToken}'
+    location: location
+    appServicePlanId: appServicePlan.outputs.id
+    keyVaultName: keyVault.outputs.name
+    runtimeName: 'dotnetcore'
+    runtimeVersion: '8.0'
+    tags: union(tags, { 'azd-service-name': 'api' })
+    appSettings: {
+      AZURE_SQL_CATALOG_CONNECTION_STRING_KEY: 'AZURE-SQL-CATALOG-CONNECTION-STRING'
+      AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY: 'AZURE-SQL-IDENTITY-CONNECTION-STRING'
+      AZURE_KEY_VAULT_ENDPOINT: keyVault.outputs.endpoint
+      APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.outputs.ConnectionString
+    }
+    allowedOrigins: [web.outputs.uri, web.outputs.uri]
   }
 }
 
@@ -117,6 +130,15 @@ module apiKeyVaultAccessSecondary './core/security/keyvault-access.bicep' = {
   params: {
     keyVaultName: keyVault.outputs.name
     principalId: web2.outputs.identityPrincipalId
+  }
+}
+
+module weApiKeyVaultAccess './core/security/keyvault-access.bicep' = {
+  name: 'web-api-keyvault-access'
+  scope: rg
+  params: {
+    keyVaultName: keyVault.outputs.name
+    principalId: api.outputs.identityPrincipalId
   }
 }
 
@@ -173,7 +195,7 @@ module appServicePlan './core/host/appserviceplan.bicep' = {
     location: location
     tags: tags
     sku: {
-      name: 'P0v3'
+      name: 'B1'
     }
   }
 }
@@ -186,7 +208,7 @@ module appServicePlan2 './core/host/appserviceplan.bicep' = {
     location: locationSecondary
     tags: tags
     sku: {
-      name: 'P0v3'
+      name: 'B1'
     }
   }
 }
@@ -216,6 +238,16 @@ module trafficManager './core/network/trafficManager.bicep' = {
   }
 }
 
+module appInsights 'core/monitoring/applicationInsights.bicep' = {
+  name: 'appInsights'
+  scope: rg
+  params: {
+    environmentName: environmentName
+    location: location
+    // appInsightsInstrumentationKey: 'AZURE_APPLICATION_INSIGHTS_INSTRUMENTATION_KEY'
+    // keyVaultName: keyVault.outputs.name
+  }
+}
 
 
 
@@ -232,3 +264,4 @@ output AZURE_LOCATION_SECONDARY string = locationSecondary
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_KEY_VAULT_ENDPOINT string = keyVault.outputs.endpoint
 output AZURE_KEY_VAULT_NAME string = keyVault.outputs.name
+// output AZURE_APPLICATION_INSIGHTS_INSTRUMENTATION_KEY string = appInsights.outputs.InstrumentationKey
