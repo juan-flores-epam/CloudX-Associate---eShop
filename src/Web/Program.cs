@@ -95,8 +95,11 @@ builder.Services.Configure<ServiceConfig>(config =>
 
 // blazor configuration
 var configSection = builder.Configuration.GetRequiredSection(BaseUrlConfiguration.CONFIG_NAME);
+var appFunctionSection = builder.Configuration.GetRequiredSection(AppFunctionSettings.CONFIG_NAME);
 builder.Services.Configure<BaseUrlConfiguration>(configSection);
+builder.Services.Configure<AppFunctionSettings>(appFunctionSection);
 var baseUrlConfig = configSection.Get<BaseUrlConfiguration>();
+builder.Services.AddAppFunctionServices(builder.Configuration);
 
 // Blazor Admin Required Services for Prerendering
 builder.Services.AddScoped<HttpClient>(s => new HttpClient

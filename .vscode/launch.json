@@ -27,10 +27,29 @@
             }
         },
         {
+            "name": ".NET Core Launch (api)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/PublicApi/bin/Debug/net8.0/PublicApi.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/PublicApi",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickProcess}"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Web/Api",
+            "configurations": [".NET Core Launch (web)", ".NET Core Launch (api)"],
+            "stopAll": true
         }
     ]
 }
