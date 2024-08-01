@@ -14,8 +14,8 @@ public static class ConfigureAppFunctionServices
 
     private static IServiceCollection AddItemsReserverFunction(this IServiceCollection services, IConfiguration configuration)
     {
-        var catalogSettings = configuration.Get<AppFunctionSettings>() ?? new AppFunctionSettings();
-        var url = catalogSettings?.ReserverUrl ?? string.Empty;
+        var appFunctions = configuration.GetRequiredSection(AppFunctionSettings.CONFIG_NAME).Get<AppFunctionSettings>();
+        var url = appFunctions?.ReserverUrl ?? string.Empty;
         services.AddHttpClient("ReserverFunction", httpClient => 
         {
             httpClient.BaseAddress = new Uri(url);

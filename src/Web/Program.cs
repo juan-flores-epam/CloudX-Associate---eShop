@@ -61,6 +61,7 @@ builder.Services.AddScoped<ITokenClaimsService, IdentityTokenClaimService>();
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddCoreServices(builder.Configuration);
 builder.Services.AddWebServices(builder.Configuration);
+builder.Services.AddAppFunctionServices(builder.Configuration);
 
 // Add memory cache services
 builder.Services.AddMemoryCache();
@@ -99,7 +100,6 @@ var appFunctionSection = builder.Configuration.GetRequiredSection(AppFunctionSet
 builder.Services.Configure<BaseUrlConfiguration>(configSection);
 builder.Services.Configure<AppFunctionSettings>(appFunctionSection);
 var baseUrlConfig = configSection.Get<BaseUrlConfiguration>();
-builder.Services.AddAppFunctionServices(builder.Configuration);
 
 // Blazor Admin Required Services for Prerendering
 builder.Services.AddScoped<HttpClient>(s => new HttpClient
