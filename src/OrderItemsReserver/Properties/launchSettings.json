@@ -2,7 +2,7 @@
   "profiles": {
     "OrderItemsReserver": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7275",
+      "commandLineArgs": "--port 7299",
       "launchBrowser": false
     }
   }
