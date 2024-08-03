@@ -14,11 +14,12 @@ public static class ConfigureAppFunctionServices
 
     private static IServiceCollection AddItemsReserverFunction(this IServiceCollection services, IConfiguration configuration)
     {
-        var appFunctions = configuration.GetRequiredSection(AppFunctionSettings.CONFIG_NAME).Get<AppFunctionSettings>();
-        var url = appFunctions?.ReserverUrl ?? string.Empty;
-        services.AddHttpClient("ReserverFunction", httpClient => 
+        var appFuncSettings = configuration.GetRequiredSection(AppFunctionSettings.CONFIG_NAME).Get<AppFunctionSettings>();
+        var url = appFuncSettings?.URL ?? string.Empty;
+        var appName = appFuncSettings?.AppName ?? string.Empty;
+        services.AddHttpClient(appName, httpClient => 
         {
-            httpClient.BaseAddress = new Uri(url);
+            httpClient.BaseAddress = new Uri($"{url}");
         });
         services.AddScoped<IAppFunctionService, AppFunctionService>();
         return services;

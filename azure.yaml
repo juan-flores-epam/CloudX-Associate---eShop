@@ -16,3 +16,8 @@ services:
     project: ./src/PublicApi
     language: csharp
     host: appservice
+  
+  func1:
+    project: ./src/OrderItemsReserver
+    language: csharp
+    host: appservice
