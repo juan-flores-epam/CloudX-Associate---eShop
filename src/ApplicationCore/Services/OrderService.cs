@@ -52,6 +52,7 @@ public class OrderService : IOrderService
         var order = new Order(basket.BuyerId, shippingAddress, items);
 
         var savedOrder = await _orderRepository.AddAsync(order);
-        await _appFunctionService.UploadOrderToStorage(savedOrder.Id);
+        //await _appFunctionService.UploadOrderToStorage(savedOrder.Id);
+        await _appFunctionService.UploadOrderToCosmosDB(savedOrder.Id);
     }
 }

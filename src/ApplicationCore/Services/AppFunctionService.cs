@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -32,6 +32,19 @@ public class AppFunctionService : IAppFunctionService
         var httpClient = _httpClientFactory.CreateClient(_appFuncSettings.AppName);
         var response = await httpClient.PostAsync(
             $"{_appFuncSettings.ReserverEndpointName}?name=order{orderId}-{order?.BuyerId}-{order?.OrderDate}", 
+            new StringContent(content, Encoding.UTF8, @"application/json")
+        );
+    }
+
+    public async Task UploadOrderToCosmosDB(int orderId)
+    {
+        var orderSpec = new OrderWithItemsByIdSpec(orderId);
+        var order = await _orderRepository.FirstOrDefaultAsync(orderSpec);
+        // var basket = await _baseketRepository.FirstOrDefaultAsync(basketSpec);
+        var content = JsonSerializer.Serialize(order, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
+        var httpClient = _httpClientFactory.CreateClient(_appFuncSettings.DeliveryServiceEndpointName);
+        var response = await httpClient.PostAsync(
+            $"{_appFuncSettings.DeliveryServiceEndpointName}",
             new StringContent(content, Encoding.UTF8, @"application/json")
         );
     }

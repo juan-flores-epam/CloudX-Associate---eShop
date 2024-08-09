@@ -71,6 +71,8 @@ module web './core/host/appservice.bicep' = {
       AZURE_KEY_VAULT_ENDPOINT: keyVault.outputs.endpoint
       appFunctions__url: 'https://test-app-jcfs-cloudx.azurewebsites.net/api/'
       appFunctions__reserverEndpointName: 'OrderItemsReserver'
+      appFunctions__deliveryServiceFuntionAppUrl: 'https://delivery-app-jcfs-cloudx.azurewebsites.net/api/'
+      appFunctions__deliveryServiceEndpointName: 'OrderDeliveryFunction'
     }
   }
 }
@@ -98,28 +100,26 @@ module web './core/host/appservice.bicep' = {
 //   }
 // }
 
-module api './core/host/appservice.bicep' = {
-  name: 'api'
-  scope: rg
-  params: {
-    name: '${abbrs.webSitesAppService}api-${resourceToken}'
-    location: location
-    appServicePlanId: appServicePlan.outputs.id
-    keyVaultName: keyVault.outputs.name
-    runtimeName: 'dotnetcore'
-    runtimeVersion: '8.0'
-    tags: union(tags, { 'azd-service-name': 'api' })
-    appSettings: {
-      AZURE_SQL_CATALOG_CONNECTION_STRING_KEY: 'AZURE-SQL-CATALOG-CONNECTION-STRING'
-      AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY: 'AZURE-SQL-IDENTITY-CONNECTION-STRING'
-      AZURE_KEY_VAULT_ENDPOINT: keyVault.outputs.endpoint
-      APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.outputs.ConnectionString
-      appFunctions__url: ''
-      appFunctions__reserverEndpointName: 'OrderItemsReserver'
-    }
-    allowedOrigins: [web.outputs.uri, web.outputs.uri]
-  }
-}
+// module api './core/host/appservice.bicep' = {
+//   name: 'api'
+//   scope: rg
+//   params: {
+//     name: '${abbrs.webSitesAppService}api-${resourceToken}'
+//     location: location
+//     appServicePlanId: appServicePlan.outputs.id
+//     keyVaultName: keyVault.outputs.name
+//     runtimeName: 'dotnetcore'
+//     runtimeVersion: '8.0'
+//     tags: union(tags, { 'azd-service-name': 'api' })
+//     appSettings: {
+//       AZURE_SQL_CATALOG_CONNECTION_STRING_KEY: 'AZURE-SQL-CATALOG-CONNECTION-STRING'
+//       AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY: 'AZURE-SQL-IDENTITY-CONNECTION-STRING'
+//       AZURE_KEY_VAULT_ENDPOINT: keyVault.outputs.endpoint
+//       APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.outputs.ConnectionString
+//     }
+//     allowedOrigins: [web.outputs.uri, web.outputs.uri]
+//   }
+// }
 
 module apiKeyVaultAccess './core/security/keyvault-access.bicep' = {
   name: 'api-keyvault-access'
@@ -139,14 +139,14 @@ module apiKeyVaultAccess './core/security/keyvault-access.bicep' = {
 //   }
 // }
 
-module weApiKeyVaultAccess './core/security/keyvault-access.bicep' = {
-  name: 'web-api-keyvault-access'
-  scope: rg
-  params: {
-    keyVaultName: keyVault.outputs.name
-    principalId: api.outputs.identityPrincipalId
-  }
-}
+// module webApiKeyVaultAccess './core/security/keyvault-access.bicep' = {
+//   name: 'web-api-keyvault-access'
+//   scope: rg
+//   params: {
+//     keyVaultName: keyVault.outputs.name
+//     principalId: api.outputs.identityPrincipalId
+//   }
+// }
 
 // The application database: Catalog
 module catalogDb './core/database/sqlserver/sqlserver.bicep' = {
