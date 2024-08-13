@@ -74,25 +74,25 @@ module web './core/host/appservice.bicep' = {
 }
 
 // The application frontend
-module web2 './core/host/appservice.bicep' = {
-  name: 'web2'
-  scope: rg
-  params: {
-    name: !empty(webServiceNameSecondary) ? webServiceNameSecondary : '${abbrs.webSitesAppService}web-${resourceTokenSecondary}'
-    location: locationSecondary
-    appServicePlanId: appServicePlan2.outputs.id
-    keyVaultName: keyVault.outputs.name
-    runtimeName: 'dotnetcore'
-    runtimeVersion: '8.0'
-    tags: union(tags, { 'azd-service-name': 'web2' })
-    appSettings: {
-      AZURE_SQL_CATALOG_CONNECTION_STRING_KEY: 'AZURE-SQL-CATALOG-CONNECTION-STRING'
-      AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY: 'AZURE-SQL-IDENTITY-CONNECTION-STRING'
-      AZURE_KEY_VAULT_ENDPOINT: keyVault.outputs.endpoint
-      APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.outputs.ConnectionString
-    }
-  }
-}
+// module web2 './core/host/appservice.bicep' = {
+//   name: 'web2'
+//   scope: rg
+//   params: {
+//     name: !empty(webServiceNameSecondary) ? webServiceNameSecondary : '${abbrs.webSitesAppService}web-${resourceTokenSecondary}'
+//     location: locationSecondary
+//     appServicePlanId: appServicePlan2.outputs.id
+//     keyVaultName: keyVault.outputs.name
+//     runtimeName: 'dotnetcore'
+//     runtimeVersion: '8.0'
+//     tags: union(tags, { 'azd-service-name': 'web2' })
+//     appSettings: {
+//       AZURE_SQL_CATALOG_CONNECTION_STRING_KEY: 'AZURE-SQL-CATALOG-CONNECTION-STRING'
+//       AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY: 'AZURE-SQL-IDENTITY-CONNECTION-STRING'
+//       AZURE_KEY_VAULT_ENDPOINT: keyVault.outputs.endpoint
+//       APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.outputs.ConnectionString
+//     }
+//   }
+// }
 
 module api './core/host/appservice.bicep' = {
   name: 'api'
@@ -124,14 +124,14 @@ module apiKeyVaultAccess './core/security/keyvault-access.bicep' = {
   }
 }
 
-module apiKeyVaultAccessSecondary './core/security/keyvault-access.bicep' = {
-  name: 'api-keyvault-access-secondary'
-  scope: rg
-  params: {
-    keyVaultName: keyVault.outputs.name
-    principalId: web2.outputs.identityPrincipalId
-  }
-}
+// module apiKeyVaultAccessSecondary './core/security/keyvault-access.bicep' = {
+//   name: 'api-keyvault-access-secondary'
+//   scope: rg
+//   params: {
+//     keyVaultName: keyVault.outputs.name
+//     principalId: web2.outputs.identityPrincipalId
+//   }
+// }
 
 module weApiKeyVaultAccess './core/security/keyvault-access.bicep' = {
   name: 'web-api-keyvault-access'
@@ -195,48 +195,48 @@ module appServicePlan './core/host/appserviceplan.bicep' = {
     location: location
     tags: tags
     sku: {
-      name: 'B1'
+      name: 'B3'
     }
   }
 }
 
-module appServicePlan2 './core/host/appserviceplan.bicep' = {
-  name: 'appserviceplan2'
-  scope: rg
-  params: {
-    name: !empty(appServicePlanNameSecondary) ? appServicePlanNameSecondary : '${abbrs.webServerFarms}${resourceTokenSecondary}'
-    location: locationSecondary
-    tags: tags
-    sku: {
-      name: 'B1'
-    }
-  }
-}
+// module appServicePlan2 './core/host/appserviceplan.bicep' = {
+//   name: 'appserviceplan2'
+//   scope: rg
+//   params: {
+//     name: !empty(appServicePlanNameSecondary) ? appServicePlanNameSecondary : '${abbrs.webServerFarms}${resourceTokenSecondary}'
+//     location: locationSecondary
+//     tags: tags
+//     sku: {
+//       name: 'B1'
+//     }
+//   }
+// }
 
-module trafficManager './core/network/trafficManager.bicep' = {
-  name: 'trafficManagerJCFS'
-  scope: rg
-  params: {
-    endpoints: [
-      {
-        name: 'endpointCentralUs'
-        type: 'Microsoft.Network/trafficManagerProfiles/azureEndpoints'
-        properties: {
-          endpointStatus: 'Enabled'
-          targetResourceId: web.outputs.id
-        }
-      }
-      {
-        name: 'endpointEastlUs'
-        type: 'Microsoft.Network/trafficManagerProfiles/azureEndpoints'
-        properties: {
-          endpointStatus: 'Enabled'
-          targetResourceId: web2.outputs.id
-        }
-      }
-    ]
-  }
-}
+// module trafficManager './core/network/trafficManager.bicep' = {
+//   name: 'trafficManagerJCFS'
+//   scope: rg
+//   params: {
+//     endpoints: [
+//       {
+//         name: 'endpointCentralUs'
+//         type: 'Microsoft.Network/trafficManagerProfiles/azureEndpoints'
+//         properties: {
+//           endpointStatus: 'Enabled'
+//           targetResourceId: web.outputs.id
+//         }
+//       }
+//       {
+//         name: 'endpointEastlUs'
+//         type: 'Microsoft.Network/trafficManagerProfiles/azureEndpoints'
+//         properties: {
+//           endpointStatus: 'Enabled'
+//           targetResourceId: web2.outputs.id
+//         }
+//       }
+//     ]
+//   }
+// }
 
 module appInsights 'core/monitoring/applicationInsights.bicep' = {
   name: 'appInsights'

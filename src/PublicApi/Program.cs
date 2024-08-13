@@ -29,8 +29,9 @@ using MinimalApi.Endpoint.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-builder.Services.AddApplicationInsightsTelemetry();
+var aiOptions = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions();
+aiOptions.RequestCollectionOptions.TrackExceptions = true;
+builder.Services.AddApplicationInsightsTelemetry(aiOptions);
 
 builder.Services.AddEndpoints();
 
@@ -167,14 +168,6 @@ app.Logger.LogInformation("Seeding Database...");
 // ILogger<Program> _logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
 var exception = new Exception("Cannot move further");
-try
-{
-    throw exception;
-}
-catch(Exception ex)
-{
-    app.Logger.LogError(ex, "Program Exception");
-}
 
 using (var scope = app.Services.CreateScope())
 {

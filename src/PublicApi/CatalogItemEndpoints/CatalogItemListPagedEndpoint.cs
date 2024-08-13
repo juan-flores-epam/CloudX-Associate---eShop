@@ -52,14 +52,7 @@ public class CatalogItemListPagedEndpoint : IEndpoint<IResult, ListPagedCatalogI
         _logger.LogInformation("totalItems: {totalItems}", totalItems);
 
         var exception = new Exception("Cannot move further");
-        try
-        {
-            throw exception;
-        }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "CatalogItemListPagedEndpoint Exception");
-        }
+        throw exception;
 
         var pagedSpec = new CatalogFilterPaginatedSpecification(
             skip: request.PageIndex * request.PageSize,
