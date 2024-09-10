@@ -2,22 +2,22 @@
 
 name: eShopOnWeb
 services:
-  web:
-    project: ./src/Web
-    language: csharp
-    host: appservice
+  # web:
+  #   project: ./src/Web
+  #   language: csharp
+  #   host: appservice
 
-  web2:
-    project: ./src/Web
-    language: csharp
-    host: appservice
+  # web2:
+  #   project: ./src/Web
+  #   language: csharp
+  #   host: appservice
 
   api:
     project: ./src/PublicApi
     language: csharp
     host: appservice
   
-  func1:
-    project: ./src/OrderItemsReserver
-    language: csharp
-    host: appservice
+  # func1:
+  #   project: ./src/OrderItemsReserver
+  #   language: csharp
+  #   host: appservice

@@ -1,0 +1,68 @@
+apiVersion: '2021-10-01'
+location: eastus
+name: containerAppCloudXJCFS
+identity:
+  type: SystemAssigned
+properties:
+  containers:
+  - name: web
+    properties:
+      image: acrcloudxjcfs.azurecr.io/eshopwebmvc:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1.5
+      ports:
+      # - port: 80
+      - port: 8080
+      environmentVariables:
+      - name: AZURE_SQL_IDENTITY_CONNECTION_STRING_KEY
+        value: AZURE-SQL-IDENTITY-CONNECTION-STRING
+      - name: AZURE_SQL_CATALOG_CONNECTION_STRING_KEY
+        value: AZURE-SQL-CATALOG-CONNECTION-STRING
+      - name: AZURE_KEY_VAULT_ENDPOINT
+        value: https://kv-lfd26qngsqzf6.vault.azure.net/
+  # - name: api
+  #   properties:
+  #     image: acrcloudxjcfs.azurecr.io/eshoppublicapi:latest
+  #     resources:
+  #       requests:
+  #         cpu: 1
+  #         memoryInGb: 1.5
+  #     ports:
+  #     - port: 5200
+  # - name: aci-tutorial-sidecar
+  #   properties:
+  #     image: mcr.microsoft.com/azuredocs/aci-tutorial-sidecar
+  #     resources:
+  #       requests:
+  #         cpu: 1
+  #         memoryInGb: 1.5
+  # - name: aci-tutorial-app
+  #   properties:
+  #     image: mcr.microsoft.com/azuredocs/aci-helloworld:latest
+  #     resources:
+  #       requests:
+  #         cpu: 1
+  #         memoryInGb: 1.5
+  #     ports:
+  #     - port: 80
+  #     - port: 8080
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+    # - protocol: tcp
+    #   port: 5106
+    # - protocol: tcp
+    #   port: 5200
+    # - protocol: tcp
+    #   port: 80
+    - protocol: tcp
+      port: 8080
+  imageRegistryCredentials:
+    - server: acrcloudxjcfs.azurecr.io
+      username: acrcloudxjcfs
+      password: F7ru3ZkClzQ/PSen264SaQ6N0p1tqCQxRFqZ/WiQu6+ACRBtcUi6
+tags: {exampleTag: tutorial}
+type: Microsoft.ContainerInstance/containerGroups

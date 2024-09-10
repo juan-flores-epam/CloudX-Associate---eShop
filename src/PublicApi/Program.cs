@@ -36,14 +36,6 @@ if (builder.Environment.IsProduction())
 
 builder.Services.AddEndpoints();
 
-if (builder.Environment.IsDevelopment())
-{
-    // Use to force loading of appsettings.json of test project
-    builder.Configuration.AddConfigurationFile("appsettings.test.json");
-    builder.Logging.AddConsole();
-}
-
-//Microsoft.eShopWeb.Infrastructure.Dependencies.ConfigureServices(builder.Configuration, builder.Services);
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
        .AddEntityFrameworkStores<AppIdentityDbContext>()
@@ -51,6 +43,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 if (builder.Environment.IsDevelopment() || builder.Environment.EnvironmentName == "Docker")
 {
+    builder.Logging.AddConsole();
     // Configure SQL Server (local)
     Microsoft.eShopWeb.Infrastructure.Dependencies.ConfigureServices(builder.Configuration, builder.Services);
 }
@@ -105,7 +98,7 @@ builder.Services.AddAuthentication(config =>
 
 const string CORS_POLICY = "CorsPolicy";
 
-if (builder.Environment.IsDevelopment()) {
+if (builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Docker")) {
     builder.Services.AddCors(options =>
     {
         options.AddPolicy(name: CORS_POLICY,
@@ -198,7 +191,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-if (app.Environment.IsDevelopment()) {
+if (app.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Docker")) {
     app.UseCors(CORS_POLICY);
 }
 

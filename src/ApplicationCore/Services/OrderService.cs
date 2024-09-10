@@ -20,14 +20,14 @@ public class OrderService : IOrderService
     public OrderService(IRepository<Basket> basketRepository,
         IRepository<CatalogItem> itemRepository,
         IRepository<Order> orderRepository,
-        IAppFunctionService appFunctionService,
+        // IAppFunctionService appFunctionService,
         IUriComposer uriComposer)
     {
         _orderRepository = orderRepository;
         _uriComposer = uriComposer;
         _basketRepository = basketRepository;
         _itemRepository = itemRepository;
-        _appFunctionService = appFunctionService;
+        // _appFunctionService = appFunctionService;
     }
 
     public async Task CreateOrderAsync(int basketId, Address shippingAddress)
@@ -53,6 +53,6 @@ public class OrderService : IOrderService
 
         var savedOrder = await _orderRepository.AddAsync(order);
         //await _appFunctionService.UploadOrderToStorage(savedOrder.Id);
-        await _appFunctionService.UploadOrderToCosmosDB(savedOrder.Id);
+        // await _appFunctionService.UploadOrderToCosmosDB(savedOrder.Id);
     }
 }

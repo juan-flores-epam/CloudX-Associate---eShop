@@ -22,13 +22,16 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddConsole();
 
+
 if (builder.Environment.IsDevelopment() || builder.Environment.EnvironmentName == "Docker"){
     // Configure SQL Server (local)
     Microsoft.eShopWeb.Infrastructure.Dependencies.ConfigureServices(builder.Configuration, builder.Services);
 }
 else{
     // Configure SQL Server (prod)
-    var credential = new ChainedTokenCredential(new AzureDeveloperCliCredential(), new DefaultAzureCredential());
+    var credential = new ChainedTokenCredential(
+        new AzureDeveloperCliCredential(),
+        new DefaultAzureCredential());
     builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"] ?? ""), credential);
     builder.Services.AddDbContext<CatalogContext>(c =>
     {
@@ -61,7 +64,7 @@ builder.Services.AddScoped<ITokenClaimsService, IdentityTokenClaimService>();
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddCoreServices(builder.Configuration);
 builder.Services.AddWebServices(builder.Configuration);
-builder.Services.AddAppFunctionServices(builder.Configuration);
+// builder.Services.AddAppFunctionServices(builder.Configuration);
 
 // Add memory cache services
 builder.Services.AddMemoryCache();
@@ -96,9 +99,9 @@ builder.Services.Configure<ServiceConfig>(config =>
 
 // blazor configuration
 var configSection = builder.Configuration.GetRequiredSection(BaseUrlConfiguration.CONFIG_NAME);
-var appFunctionSection = builder.Configuration.GetRequiredSection(AppFunctionSettings.CONFIG_NAME);
+// var appFunctionSection = builder.Configuration.GetRequiredSection(AppFunctionSettings.CONFIG_NAME);
 builder.Services.Configure<BaseUrlConfiguration>(configSection);
-builder.Services.Configure<AppFunctionSettings>(appFunctionSection);
+// builder.Services.Configure<AppFunctionSettings>(appFunctionSection);
 var baseUrlConfig = configSection.Get<BaseUrlConfiguration>();
 
 // Blazor Admin Required Services for Prerendering
