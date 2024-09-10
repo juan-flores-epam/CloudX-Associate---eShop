@@ -7,7 +7,14 @@
 #
 # RUN COMMAND
 #  docker run --name eshopweb --rm -it -p 5106:5106 web
+
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+ENV PORT=8080
+EXPOSE 8080
+ENV ASPNETCORE_URL="http://*:${PORT}"
+
 WORKDIR /app
 
 COPY *.sln .
